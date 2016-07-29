@@ -18,7 +18,6 @@ import static org.junit.Assert.*;
  * @author Manasa
  */
 public class GameParserTest {
-    private final String[] stopWords = {"a", "an", "the"};
     
     Dictionary mockDictionary = new Dictionary(){
         @Override
@@ -50,14 +49,9 @@ public class GameParserTest {
         public List<String> getGameObjects(List<String> objectWords) {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
-        
-        @Override
-        public void addGameObject(GameObject object) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
 
         @Override
-        public void addGameAction(GameAction action) {
+        public void addGameObject(String nameId) {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
     };
@@ -120,130 +114,73 @@ public class GameParserTest {
         assertEquals(true, op);
     }
     
-    /**
-     * Test of tokenizeWord with multi-worded unser input
-     */
+     //Test match function when input matches with the pattern and contains one object
     @Test
-    public void testTokenizeMultipleWordUserInput(){
-        System.out.println("tokenize");
-        String userInput = "This is test";
+    public void testParseForMatch2() {
+        System.out.println("parse");
+        String userInput = "abc";
         GameParser instance = GameParser.getInstance();
-        String[] result = instance.tokenizeWords(userInput);
+        Command result = instance.parse(userInput);
         assertNotNull(result);
-        assertEquals(3, result.length);
-        assertEquals("This", result[0]);
-        assertEquals("is", result[1]);
-        assertEquals("test", result[2]);
+        assertEquals("basket ball ", result.object1);
+    }
+
+    @Test
+    public void testMatchWithMatchingParameters2() {
+        System.out.println("parse");
+        String userInput = "";
+        GameParser instance = GameParser.getInstance();
+        
+        String[] wLIst = new String[]{"Examine","basket", "ball"};
+        String Pattern = "Examine (\\D*)";
+  
+        boolean op = instance.match(wLIst, Pattern);
+        assertNotNull(op);
+        assertEquals(true, op);
     }
     
-    /**
-     * Test removeStopWords with null word token
-     */
+    //Test match function when input does not match with the pattern
     @Test
-    public void testRemoveStopWordWithNullWordToken()
-    {
-        System.out.println("remove stop words");
-        String[] wordTokens = null;
+    public void testMatchWithoutMatchingParameters() {
+        System.out.println("parse");
+        String userInput = "";
         GameParser instance = GameParser.getInstance();
-        instance.removeStopWords(stopWords, wordTokens);
-        assertNull(wordTokens);
+        
+        String[] wLIst = new String[]{"Put","basket", "ball","into","wooden","box"};
+        String Pattern = "Put (\\D*) in (\\D*)";
+  
+        boolean op = instance.match(wLIst, Pattern);
+        assertNotNull(op);
+        assertEquals(false, op);
     }
     
-    /**
-     * Test removeStopWords with empty word token
-     */
+    //Test match function when input does not match with the pattern
     @Test
-    public void testRemoveStopWordWithEmptyWordToken()
-    {
-        System.out.println("remove stop words");
-        String[] wordTokens = {};
+    public void testMatchWithoutMatchingParameters2() {
+        System.out.println("parse");
+        String userInput = "";
         GameParser instance = GameParser.getInstance();
-        instance.removeStopWords(stopWords, wordTokens);
-        assertNotNull(wordTokens);
-        assertEquals(0, wordTokens.length);
+        
+        String[] wLIst = new String[]{"Put","basket", "ball"};
+        String Pattern = "Put (\\D*) in (\\D*)";
+  
+        boolean op = instance.match(wLIst, Pattern);
+        assertNotNull(op);
+        assertEquals(false, op);
     }
     
-    /**
-     * Test removeStopWords with single word token
-     * which is a stop word
-     */
+    //Test match function when input matches with the pattern and contains no objects
     @Test
-    public void testRemoveStopWordOnlyWithSingleStopWordEntry()
-    {
-        System.out.println("remove stop words");
-        String[] wordTokens = new String[]{"a"};
+    public void testMatchWithoutMatchingParameters2() {
+        System.out.println("parse");
+        String userInput = "";
         GameParser instance = GameParser.getInstance();
-        wordTokens = instance.removeStopWords(stopWords, wordTokens);
-        assertNotNull(wordTokens);
-        assertEquals(0, wordTokens.length);
-    }
-    
-    /**
-     * Test removeStopWords with multiple words 
-     * where all the words are stop words
-     */
-    @Test
-    public void testRemoveStopWordOnlyWithMultipleStopWordEntry()
-    {
-        System.out.println("remove stop words");
-        String[] wordTokens = new String[]{"a", "an", "the"};
-        GameParser instance = GameParser.getInstance();
-        wordTokens = instance.removeStopWords(stopWords, wordTokens);
-        assertNotNull(wordTokens);
-        assertEquals(0, wordTokens.length);
-    }
-    
-    /**
-     * Test removeStopWords with no stop words
-     */
-    @Test
-    public void testRemoveStopWordNoStopWordEntry()
-    {
-        System.out.println("remove stop words");
-        String[] wordTokens = new String[]{"This", "is", "test"};
-        GameParser instance = GameParser.getInstance();
-        wordTokens = instance.removeStopWords(stopWords, wordTokens);
-        assertNotNull(wordTokens);
-        assertEquals(3, wordTokens.length);
-        assertEquals("This", wordTokens[0]);
-        assertEquals("is", wordTokens[1]);
-        assertEquals("test", wordTokens[2]);
-    }
-    
-    /**
-     * Test removeStopWords with one stop word
-     * and 2 or more non-stop words
-     */
-    @Test
-    public void testRemoveStopWordWithStopWordAndOtherEntry()
-    {
-        System.out.println("remove stop words");
-        String[] wordTokens = new String[]{"This", "is", "a", "test"};
-        GameParser instance = GameParser.getInstance();
-        wordTokens = instance.removeStopWords(stopWords, wordTokens);
-        assertNotNull(wordTokens);
-        assertEquals(3, wordTokens.length);
-        assertEquals("This", wordTokens[0]);
-        assertEquals("is", wordTokens[1]);
-        assertEquals("test", wordTokens[2]);
-    }
-    
-    /**
-     * Test removeStopWords with two stop words
-     * and 2 or more non-stop words
-     */
-    @Test
-    public void testRemoveStopWordWithMultipleStopWordsAndOtherEntry()
-    {
-        System.out.println("remove stop words");
-        String[] wordTokens = new String[]{"Put", "the", "ball", "in", "the", "box"};
-        GameParser instance = GameParser.getInstance();
-        wordTokens = instance.removeStopWords(stopWords, wordTokens);
-        assertNotNull(wordTokens);
-        assertEquals(4, wordTokens.length);
-        assertEquals("Put", wordTokens[0]);
-        assertEquals("ball", wordTokens[1]);
-        assertEquals("in", wordTokens[2]);
-        assertEquals("box", wordTokens[3]);
+        
+        String[] wLIst = new String[]{"Inventory"};
+        String Pattern = "Inventory";
+  
+        boolean op = instance.match(wLIst, Pattern);
+        assertNotNull(op);
+        assertEquals(true, op);
     }
 }
